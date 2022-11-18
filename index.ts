@@ -1,6 +1,8 @@
+import "reflect-metadata"
+
 import app from './app';
 import {appDataSource} from "./src/database/data-source";
-import "reflect-metadata"
+
 
 async function start() {
     const port = process.env.PORT || 8000
