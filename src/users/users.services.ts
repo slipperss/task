@@ -15,14 +15,15 @@ class UserService {
   }
 
   async getAll() {
+    // get all users with their followers 
     return await this.usersRepository.find({relations: {followers: true}})
   }
 
   async getOne(id: number, order_by: string = 'id', order_type: string = 'ASC') {
-      // get required users
+      // get required user
       const user = await this.usersRepository.findOne({where: {id: id}, order: {}})
       
-      // get user friends (mutual following)
+      // get required user friends (mutual following)
       const friends = await this.usersRepository.query(`
            (SELECT "user_followers"."id" as "id",
                   "user_followers"."first_name" as "first_name",
