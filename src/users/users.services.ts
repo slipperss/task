@@ -11,8 +11,6 @@ class UserService {
       first_name: data.first_name,
       gender: data.gender
     })
-    const user1 = await this.usersRepository.findOne({where: {id: 3}})
-    user.followers = [user1]
     return await this.usersRepository.save(user)
   }
 
@@ -21,7 +19,10 @@ class UserService {
   }
 
   async getOne(id: number, order_by: string = 'id', order_type: string = 'ASC') {
+      // get required users
       const user = await this.usersRepository.findOne({where: {id: id}, order: {}})
+      
+      // get user friends (mutual following)
       const friends = await this.usersRepository.query(`
            (SELECT "user_followers"."id" as "id",
                   "user_followers"."first_name" as "first_name",
@@ -44,6 +45,7 @@ class UserService {
             WHERE "user"."id" = ${id}
             ORDER BY ${order_by} ${order_type})`
       )
+      // data aggregation
       const info = {
           id: user.id,
           first_name: user.first_name,
@@ -53,6 +55,7 @@ class UserService {
       return info
   }
   async getMaxFollowingUsers() {
+    // get the five users with the most followings
     const users = this.usersRepository.query(`
         (SELECT "user"."id" AS "id",
                 "user"."first_name" AS "first_name",
@@ -69,6 +72,7 @@ class UserService {
   }
 
   async getNoFollowingUsers() {
+    // get the users with nop followings
     const users = this.usersRepository.query(`
         (SELECT "user"."id" AS "id",
                "user"."first_name" AS "first_name",
@@ -79,8 +83,7 @@ class UserService {
         ON "u_r"."usersId_2"="user"."id"
         GROUP BY "user"."id"
         HAVING COUNT("u_r"."usersId_2") = 0
-        ORDER BY followings_count DESC
-        LIMIT 5)`
+        ORDER BY followings_count DESC)`
     )
     return users
   }
