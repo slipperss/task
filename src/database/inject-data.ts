@@ -12,6 +12,8 @@ async function inject_data_to_database() {
 
         const users_count = 200 // how many users will be created
 
+        
+        // Creating users
         for (let i = 0; i < users_count; i++) {
             let user = new User()
             user.first_name = 'user' + i.toString()
@@ -20,6 +22,7 @@ async function inject_data_to_database() {
         }
         await conn.manager.save(users)
 
+        // Creating users-relations(following)
         for (let i = 0; i < users_count; i++) {
             let factor = getRandomInt(1, 10)
             const from = i - factor + users_count / 100
