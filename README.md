@@ -1,4 +1,4 @@
-# 1 - Lauch locally postgresql database
+# 1 - Launch locally postgresql database
 # 2 - Create .env file by example:
     PORT=8000
     TYPE*ORM_HOST=localhost
