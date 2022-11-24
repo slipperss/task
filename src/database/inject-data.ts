@@ -7,31 +7,31 @@ function getRandomInt(min, max) {
 
 async function inject_data_to_database() {
     try {
-        const conn = await appDataSource.initialize()
         let users = []
 
         const users_count = 200 // how many users will be created
 
-        
-        // Creating users
-        for (let i = 0; i < users_count; i++) {
-            let user = new User()
-            user.first_name = 'user' + i.toString()
-            user.gender = 'male'
-            users.push(user)
-        }
-        await conn.manager.save(users)
+        await appDataSource.initialize()
 
-        // Creating users-relations(following)
-        for (let i = 0; i < users_count; i++) {
-            let factor = getRandomInt(1, 10)
-            const from = i - factor + users_count / 100
-            const to = i + users_count / 100
-            users[i].followers = users.slice(from, to)
-                .filter(value => value.id !== users[i].id)
+        await appDataSource.transaction(async entityManager => {
+            for (let i = 0; i < users_count; i++) {
+                let user = new User()
+                user.first_name = i + getRandomInt(i, users_count).toString(16) + i + i.toString(16)
+                user.gender = getRandomInt(-1, 1) === 0 ? 'male' : 'female'
+                users.push(user)
+            }
+            await entityManager.save(users)
 
-        }
-        await conn.manager.save(users)
+            for (let i = 0; i < users_count; i++) {
+                let factor = getRandomInt(1, 10)
+                const from = i - factor + users_count / 100
+                const to = i + users_count / 100
+                users[i].followers = users.slice(from, to)
+                    .filter(value => value.id !== users[i].id)
+
+            }
+            await entityManager.save(users)
+        })
         console.log("Data Successfully injected to database")
     } catch (e) {
         throw e
